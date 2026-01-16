@@ -1,0 +1,137 @@
+select * from public."DimCustomer"
+
+select 
+count(*)
+from public."DimCustomer"
+
+
+
+
+select 
+count(*)
+from public."DimCustomer"
+where Gender='Male'
+
+select
+Gender,
+count(*) As "gender"
+from public."DimCustomer"
+group by gender
+
+select
+Gender,
+city,
+count(*) As "Total Customers"
+from public."DimCustomer"
+group by gender,city 
+order by city
+
+
+select
+Gender,
+city,
+count(*) As "Total Customers"
+from public."DimCustomer"
+group by gender,city 
+having count(*)>=5
+order by city
+
+--subquery
+select
+category,
+count(*) As "Total Products"
+from public."DimProducts"
+group by 1
+order by 2 desc
+
+
+
+
+select
+avg(unit_price)
+from public."DimProducts"
+
+
+
+select 
+*
+from public."DimProducts"
+where unit_price>(select
+avg(unit_price)
+from public."DimProducts"
+)
+
+
+
+select
+*,
+(select
+avg(unit_price)  
+from public."DimProducts") as "Average Price"
+from public."DimProducts"
+
+
+
+
+
+select
+*,
+case
+   when unit_price>(select avg(unit_price)from public."DimProducts") then 'High Value Product'
+   Else 'Low Value Product'
+End as "Product Pricing Category"
+from public."DimProducts"
+
+
+select
+*
+from
+(
+select
+*,
+case
+   when unit_price>(select avg(unit_price)from public."DimProducts") then 'High Value Product'
+   Else 'Low Value Product'
+End as "Product Pricing Category"
+from public."DimProducts"
+) as "sub_table"
+where "Product Pricing Category"='High Value Product'
+
+
+
+select
+category,
+count(*) as "Total Products"
+
+from
+(
+select
+*,
+case
+   when unit_price>(select avg(unit_price)from public."DimProducts") then 'High Value Product'
+   Else 'Low Value Product'
+End as "Product Pricing Category"
+from public."DimProducts"
+) as "sub_table"
+where "Product Pricing Category"='High Value Product'
+group by category
+order by 2 desc
+
+
+
+
+
+
+
+--join
+select
+o.*,
+c.*,
+oi.*
+from "FactOrders" as o
+Left join "DimCustomer" as c on o."customer_id"=c."customer_id"
+Left join "FactOrderItems" as oi on o."order_id"=oi."order_id"
+
+
+
+select * from "DimCustomer"

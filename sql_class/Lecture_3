@@ -1,0 +1,18 @@
+select * from public."DimCustomer"
+where email ilike ('%outlook%')
+and city ='Sylhet'
+
+
+select * from public."DimCustomer"
+where email ilike ('%outlook%')
+and (city ='Sylhet' or city='Gazipur')
+
+
+select * from public."DimCustomer"
+where email ilike ('%outlook%')
+and city in ('Sylhet','Gazipur','Barishal')
+
+
+
+select * from public."DimCustomer"
+where customer_id between 1 and 5

@@ -1,0 +1,140 @@
+elect
+*
+from "FactOrders" o 
+left join "DimCustomer" c on o."customer_id" = c."customer_id"
+
+select * from "DimCustomer" where created_at is null
+
+CREATE OR REPLACE VIEW vw_dimcustomer_null AS
+select * from "DimCustomer" where created_at is null
+
+select * from public.vw_dimcustomer_null
+
+select
+*
+from "FactOrders" o
+left join public.vw_dimcustomer_null cn on o."customer_id" = cn.customer_id
+join public.vw_dimcustomer_null cn on o."customer_id" = cn.customer_id
+
+
+-- Product Affinity
+-- Which pair of products are more likely to be bought together
+
+SELECT 
+oi1.product_id AS product_1, 
+oi2.product_id AS product_2, 
+COUNT(*) AS times_ordered_together 
+FROM "FactOrderItems" oi1 
+JOIN "FactOrderItems" oi2 ON oi1.order_id = oi2.order_id 
+AND oi1.product_id < oi2.product_id 
+GROUP BY oi1.product_id, oi2.product_id 
+ORDER BY times_ordered_together DESC 
+LIMIT 10;
+
+
+ select
+ oi1.product_id AS product_1, 
+ oi2.product_id AS product_2
+ FROM "FactOrderItems" oi1 
+ JOIN "FactOrderItems" oi2 ON oi1.order_id = oi2.order_id 
+ AND oi1.product_id < oi2.product_id  
+
+--- CTE: Common Table Expression
+
+with top_paired_products as(	
+	SELECT 
+		oi1.product_id AS product_1, 
+		oi2.product_id AS product_2, 
+		COUNT(*) AS times_ordered_together 
+	FROM "FactOrderItems" oi1 
+	JOIN "FactOrderItems" oi2 ON (oi1.order_id = oi2.order_id 
+	AND oi1.product_id < oi2.product_id) 
+	GROUP BY oi1.product_id, oi2.product_id 
+	ORDER BY times_ordered_together DESC 
+	LIMIT 10
+)
+select
+	product_1,
+	p1.product_name as "Product_1",
+	product_2,
+	p2.product_name as "Product_2",
+	times_ordered_together
+from top_paired_products tpr
+left join public."DimProducts" p1 on tpr.product_1 = p1.product_id
+left join public."DimProducts" p2 on tpr.product_2 = p2.product_id
+order by times_ordered_together desc
+
+
+
+
+with order_per_city as (
+	select 
+	city,
+	count(*) as total_orders
+	from "DimCustomer" c
+	left join "FactOrders" o on c.customer_id = o.customer_id
+	group by 1
+),
+
+cancelled_order_per_city as (
+	select
+	city,
+	count(*) cancelled_orders
+	from "DimCustomer" c
+	left join "FactOrders" o on c.customer_id = o.customer_id
+	where "status" = 'Cancelled'
+	group by 1
+)
+
+
+select
+	oc.city,
+	total_orders,
+	cancelled_orders,
+	round(cancelled_orders::numeric/total_orders::numeric,2) as cancel_percentage -- type casting
+	--total_orders/cancelled_orders
+from order_per_city oc
+left join cancelled_order_per_city occ on oc.city = occ.city
+order by 4 desc
+
+--window
+select
+*,
+avg(unit_price) over() as "Avg Price"
+from "DimProducts"
+
+select
+category,
+avg(unit_price)
+from "DimProducts"
+group by 1
+
+
+select
+*,
+avg(unit_price) over(partition by category) as "Category Avg Price"
+from "DimProducts"
+
+
+-- Rank, Dense_Rank, Row_Number
+
+with rank_test as (
+select * from "DimProducts" 
+order by stock desc
+limit 10
+),
+-- select * from rank_test
+ranking as (
+	select
+	product_id,
+	stock,
+	rank() over(order by stock desc),
+	row_number() over(order by stock desc),
+	dense_rank() over(order by stock desc) as "dense_rank_val"
+	from rank_test
+)
+select
+"dense_rank_val",
+stock
+from ranking
+group by 1,2

@@ -1,121 +1,151 @@
-select * from public."DimCustomer"
-
-select 
+select * from public."DimCustomers";
+select
 count(*)
-from public."DimCustomer"
+from public."DimCustomers" 
+where gender='Male';
 
-
-
-
-select 
+select
 count(*)
-from public."DimCustomer"
-where Gender='Male'
+from public."DimCustomers" 
+where gender='Female';
 
+--group by
+-- how many males and females are there
+--aggregate function sum(),avg(),count()
 select
-Gender,
-count(*) As "gender"
-from public."DimCustomer"
-group by gender
+gender,
+count(*) as "customer numbers"
+from public."DimCustomers" 
+group by gender;
 
+--how many males & females customers are registrerd per city
 select
-Gender,
+gender,
 city,
-count(*) As "Total Customers"
-from public."DimCustomer"
-group by gender,city 
-order by city
+count(*) as "customer numbers"
+from public."DimCustomers" 
+group by gender,city
+order by 2;
+
+--how many  customers are registrerd per city
+select
+city,
+count(*) as "customer numbers"
+from public."DimCustomers" 
+group by city
+order by 1;
+
+--how many males & females customers are registrerd per city who use gmail
+--how many males & females customers are registrerd per city
+select
+gender,
+city,
+count(*) as "customer numbers"
+from public."DimCustomers" 
+where email ilike('%gmail%')
+group by gender,city
+order by 2;
 
 
 select
-Gender,
+gender,
 city,
-count(*) As "Total Customers"
-from public."DimCustomer"
-group by gender,city 
-having count(*)>=5
-order by city
+count(*) as "customer numbers"
+from public."DimCustomers" 
+group by gender,city
+having count(*)>5
+order by 2;
+
 
 --subquery
-select
+select * from public."DimProducts";
+select 
 category,
-count(*) As "Total Products"
+count(*) as "products number"
 from public."DimProducts"
-group by 1
-order by 2 desc
+group by category
+order by 2
 
-
-
-
-select
+select 
 avg(unit_price)
-from public."DimProducts"
+from public."DimProducts";
+select avg(unit_price) from public."DimProducts";
 
 
-
+--generate a alist of product which has large  unit value than the avg price
 select 
 *
 from public."DimProducts"
-where unit_price>(select
+where unit_price>(
+select 
 avg(unit_price)
 from public."DimProducts"
 )
 
+--linear use of subquery
+select 
+*, 
+(select 
+avg(unit_price)
+from public."DimProducts") as "avg_price"
+from public."DimCustomers";
 
+-- CASE STATEMENT
 
-select
-*,
-(select
-avg(unit_price)  
-from public."DimProducts") as "Average Price"
-from public."DimProducts"
+-- Divide the products into high value and low value categories
+-- if the product's unit_price > avg price then high value, otherwise low value
+--AVG price=187.3170731707317073
 
-
-
-
-
-select
+select 
 *,
 case
-   when unit_price>(select avg(unit_price)from public."DimProducts") then 'High Value Product'
-   Else 'Low Value Product'
-End as "Product Pricing Category"
-from public."DimProducts"
+   when unit_price>187.3170731707317073 THEN 'High Value Product'
+   when  unit_price=187.3170731707317073 THEN 'Average Value Product'
+   ELSE 'Low Value Product'
+End as "product category"
+from public."DimProducts";  
 
+--subquery
+select 
+*,
+case
+   when unit_price>(select avg(unit_price) from public."DimProducts") THEN 'High Value Product'
+   when  unit_price=(select avg(unit_price) from public."DimProducts") THEN 'Average Value Product'
+   ELSE 'Low Value Product'
+End as "product category"
+from public."DimProducts"  
 
-select
+--how many high value products are in each category
+-- first i will take the only high value products
+select 
 *
-from
-(
-select
+from (select 
 *,
 case
-   when unit_price>(select avg(unit_price)from public."DimProducts") then 'High Value Product'
-   Else 'Low Value Product'
-End as "Product Pricing Category"
-from public."DimProducts"
-) as "sub_table"
-where "Product Pricing Category"='High Value Product'
+   when unit_price>(select avg(unit_price) from public."DimProducts") THEN 'High Value Product'
+   when  unit_price=(select avg(unit_price) from public."DimProducts") THEN 'Average Value Product'
+   ELSE 'Low Value Product'
+End as "product category"
+from public."DimProducts"  
+)sub_table
+where "product category"='High Value Product'
 
 
-
-select
+select 
 category,
-count(*) as "Total Products"
-
-from
-(
-select
+count(*) as "total produts"
+from (select 
 *,
 case
-   when unit_price>(select avg(unit_price)from public."DimProducts") then 'High Value Product'
-   Else 'Low Value Product'
-End as "Product Pricing Category"
-from public."DimProducts"
-) as "sub_table"
-where "Product Pricing Category"='High Value Product'
+   when unit_price>(select avg(unit_price) from public."DimProducts") THEN 'High Value Product'
+   when  unit_price=(select avg(unit_price) from public."DimProducts") THEN 'Average Value Product'
+   ELSE 'Low Value Product'
+End as "product category"
+from public."DimProducts"  
+)sub_table
+where "product category"='High Value Product'
 group by category
-order by 2 desc
+order by 2 desc 
 
 
 
@@ -124,14 +154,8 @@ order by 2 desc
 
 
 --join
-select
+select 
 o.*,
-c.*,
-oi.*
-from "FactOrders" as o
-Left join "DimCustomer" as c on o."customer_id"=c."customer_id"
-Left join "FactOrderItems" as oi on o."order_id"=oi."order_id"
-
-
-
-select * from "DimCustomer"
+c.*
+from public."FactOrders"  as o
+left join public."DimCustomers" as c on o.customer_id=c.customer_id

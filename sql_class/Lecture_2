@@ -11,9 +11,11 @@ last_order_date DATE,
 status VARCHAR(20),
 referral_id INT
 );
-select * from  public."customers"
+
+select * from public."customers"
 --populate the data
 INSERT INTO customers VALUES
+
 (1, 'Tanvir Pial', 'tanvir@gmail.com', 'Bangladesh', 'Dhaka', 28, 12, 8500.00, '2025-01-10', 'active', NULL),
 
 (2, 'Ayesha Rahman', NULL, 'Bangladesh', 'Chittagong', 24, 3, 1200.00, '2024-12-22', 'active', 1),
@@ -38,55 +40,59 @@ INSERT INTO customers VALUES
 
 (12, 'Priya Sharma', NULL, 'India', 'Mumbai', 26, 4, 1800.00, '2024-11-20', 'inactive', 5);
 
-select * from  public."customers"
---where clause
---where/having/case when
-select
-full_name,
-email,
-city
-from public."customers"
-where city='Dhaka'
 
-  select
-full_name,
-country
-from public."customers"
-where status='active'
+
+select
+   full_name,
+   email,
+   city
+from customers;
+--where/having/case when
+--where clause
+--people who lives in dhaka
+select
+   full_name,
+   email,
+   city
+from customers
+where city='Dhaka';
+
+
+select
+   full_name,
+   country
+from customers
+where "status"='active';
+
 
 --null
--- not equal<>
-select
-* 
+--<> not equal
+select 
+*
 from customers
-where age is not null
+where age is not null;
 
---coalesce
---limit,offset
-select
-* 
-from customers
-limit 5 offset 2
-
-
-select
-* 
-from customers
-limit 5 offset 5*2
-
-
+--coalesce(a,b,c,d,e,0)
+select * from customers limit 5 offset 2
+select * from customers 
+limit 5 
+offset 5*1
 
 --like/ilike
---like casw sensitive
---ilike is case insensitive
-
-select
-* 
+--like is case sensitive
+--ilikie is case insensitive
+select * 
 from customers
 where full_name like('A%');
 
-select
-* 
+select * 
 from customers
-where email ilike('%gmail%');
+where full_name ilike('%A');
+select * 
+from customers
+where email ilike('%@gmail%');
+
+
+
+
 

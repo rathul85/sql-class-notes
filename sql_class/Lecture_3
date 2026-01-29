@@ -1,18 +1,26 @@
-select * from public."DimCustomer"
-where email ilike ('%outlook%')
-and city ='Sylhet'
+select * from public."DimCustomers"
 
 
-select * from public."DimCustomer"
-where email ilike ('%outlook%')
-and (city ='Sylhet' or city='Gazipur')
+select * 
+from public."DimCustomers"
+where email ilike('%outlook%');
+
+select 
+count(*) 
+from public."DimCustomers"
+where email ilike('%outlook%')
+and "city"='Sylhet';
 
 
-select * from public."DimCustomer"
-where email ilike ('%outlook%')
-and city in ('Sylhet','Gazipur','Barishal')
+select 
+* 
+from public."DimCustomers"
+where email ilike('%outlook%')
+--and ("city"='Sylhet' or "city"='Gazipur')
+and city not in('Sylhet','Gazipur','Barishal')
 
 
-
-select * from public."DimCustomer"
+select * from public."DimCustomers"
 where customer_id between 1 and 5
+
+
